@@ -11,6 +11,9 @@ Implemented capabilities:
      * https://sourceforge.net/p/msys2/wiki/Porting/#filesystem-namespaces
      * https://github.com/Alexpux/MSYS2-packages/issues/84
 
+ * `insert_public_key` and `remove_public_key` are inherited from `linux` guest and should be correct
+ * `rsync` is unfortunately not yet ready as MSYS2 rsync does not support compression and parameter "-z" is hard-coded in Vagrant code
+
 ### Usage
 
  * Build

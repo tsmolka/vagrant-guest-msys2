@@ -30,6 +30,31 @@ module VagrantPlugins
         VagrantPlugins::GuestLinux::Cap::RemovePublicKey
       end
 
+      guest_capability("msys2", "rsync_installed") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+      
+      guest_capability("msys2", "rsync_install") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+      
+      guest_capability("msys2", "rsync_command") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+      
+      guest_capability("msys2", "rsync_pre") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+      
+      guest_capability("msys2", "rsync_post") do
+        require_relative "cap/rsync"
+        Cap::RSync
+      end
+      
     end
   end
 end
