@@ -19,6 +19,16 @@ module VagrantPlugins
         require_relative "cap/halt"
         Cap::Halt
       end
+      
+      guest_capability("msys2", "insert_public_key") do
+        require Vagrant.source_root.join('plugins/guests/linux/cap/insert_public_key') 
+        VagrantPlugins::GuestLinux::Cap::InsertPublicKey
+      end
+      
+      guest_capability("msys2", "remove_public_key") do
+        require Vagrant.source_root.join('plugins/guests/linux/cap/remove_public_key')
+        VagrantPlugins::GuestLinux::Cap::RemovePublicKey
+      end
 
     end
   end
