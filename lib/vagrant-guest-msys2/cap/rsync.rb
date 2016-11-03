@@ -3,7 +3,7 @@ module VagrantPlugins
     module Cap
       class RSync
         def self.rsync_installed(machine)
-          machine.communicate.test("which rsync")
+          machine.communicate.test('which rsync')
         end
         
         def self.rsync_install(machine)
@@ -12,7 +12,7 @@ module VagrantPlugins
         end
 
         def self.rsync_command(machine)
-          "rsync"
+          'rsync'
         end
 
         def self.rsync_pre(machine, opts)
