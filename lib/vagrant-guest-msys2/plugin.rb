@@ -23,13 +23,13 @@ module VagrantPlugins
       end
       
       guest_capability("msys2", "insert_public_key") do
-        require Vagrant.source_root.join('plugins/guests/linux/cap/insert_public_key') 
-        VagrantPlugins::GuestLinux::Cap::InsertPublicKey
+        require_relative "cap/insert_public_key"
+        Cap::InsertPublicKey
       end
       
       guest_capability("msys2", "remove_public_key") do
-        require Vagrant.source_root.join('plugins/guests/linux/cap/remove_public_key')
-        VagrantPlugins::GuestLinux::Cap::RemovePublicKey
+        require_relative "cap/remove_public_key"
+        Cap::RemovePublicKey
       end
 
       guest_capability("msys2", "rsync_installed") do
