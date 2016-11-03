@@ -57,6 +57,41 @@ module VagrantPlugins
         Cap::RSync
       end
       
+      guest_capability("msys2", "choose_addressable_ip_addr") do
+        require_relative "cap/choose_addressable_ip_addr"
+        Cap::ChooseAddressableIPAddr
+      end
+      
+      guest_capability("msys2", "change_host_name") do
+        require_relative "cap/change_host_name"
+        Cap::ChangeHostName
+      end
+
+      guest_capability("msys2", "wait_for_reboot") do
+        require_relative "cap/reboot"
+        Cap::Reboot
+      end
+    
+      guest_capability("msys2", "powershell_check") do
+        require_relative "cap/powershell"
+        Cap::Powershell
+      end
+
+      guest_capability("msys2", "powershell_install") do
+        require_relative "cap/powershell"
+        Cap::Powershell
+      end
+      
+      guest_capability("msys2", "powershell_installed") do
+        require_relative "cap/powershell"
+        Cap::Powershell
+      end
+      
+      guest_capability("msys2", "configure_networks") do
+        require_relative "cap/configure_networks"
+        Cap::ConfigureNetworks
+      end
+      
       protected
 
       def self.init!
