@@ -1,0 +1,17 @@
+en:
+  vagrant-guest-msys2:
+    info:
+      run_powershell_install: "Installing powershell to the VM..."      
+      run_change_host_name: "Changing hostname to %{host}"
+      run_wait_for_reboot: "Waiting until %{host} reboots"
+      
+    errors:
+      rename_computer_failed: |-
+        Renaming the MSYS2 guest failed. Most often this is because you've
+        specified a FQDN instead of just a host name.
+
+        Ensure the new guest name is properly formatted. Standard names may
+        contain letters (a-z, A-Z), numbers (0-9), and hypens (-), but no
+        spaces or periods (.). The name may not consist entirely of digits.
+      
+      powershell_not_installed_in_guest: "Powershell is not installed in this VM."

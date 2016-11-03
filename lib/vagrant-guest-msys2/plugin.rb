@@ -11,6 +11,8 @@ module VagrantPlugins
       description "MSYS2 guest support."
 
       guest('msys2') do
+        init!
+        
         require File.expand_path("../guest", __FILE__)
         Guest
       end
@@ -55,6 +57,15 @@ module VagrantPlugins
         Cap::RSync
       end
       
+      protected
+
+      def self.init!
+        return if defined?(@_init)
+        I18n.load_path << File.expand_path('locales/en.yml', VagrantPlugins::GuestMSYS2.source_root)
+        I18n.reload!
+        @_init = true
+      end
+    
     end
   end
 end
