@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/tsmolka/vagrant-guest-msys2.svg?branch=master)](https://travis-ci.org/tsmolka/vagrant-guest-msys2) [![Gem Version](https://badge.fury.io/rb/vagrant-guest-msys2.svg)](http://badge.fury.io/rb/vagrant-guest-msys2)
+
 vagrant-guest-msys2
 ==============
 
