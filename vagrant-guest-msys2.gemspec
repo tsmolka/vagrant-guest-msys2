@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.description   = "Adds MSYS2 (https://sourceforge.net/p/msys2/wiki/Home/) as a guest for Vagrant. "
   s.homepage      = "https://github.com/tsmolka/vagrant-guest-msys2"
   s.required_rubygems_version = ">= 1.3.6"
+  s.add_dependency 'rake'
   root_path       = File.dirname(__FILE__)
   
   s.files = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
