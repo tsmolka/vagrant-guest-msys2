@@ -9,8 +9,6 @@ module VagrantPlugins
           end
 
           def self.change_host_name_and_wait(machine, name, sleep_timeout)
-            machine.guest.capability(:powershell_check) if machine.guest.capability?(:powershell_check)
-            
             escaped_name = name.gsub("'", "''")
             
             # If the configured name matches the current name, then bail

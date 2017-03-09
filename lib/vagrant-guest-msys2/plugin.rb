@@ -77,19 +77,14 @@ module VagrantPlugins
         Cap::Powershell
       end
 
-      guest_capability("msys2", "powershell_install") do
-        require_relative "cap/powershell"
-        Cap::Powershell
-      end
-      
-      guest_capability("msys2", "powershell_installed") do
-        require_relative "cap/powershell"
-        Cap::Powershell
-      end
-      
       guest_capability("msys2", "configure_networks") do
         require_relative "cap/configure_networks"
         Cap::ConfigureNetworks
+      end
+      
+      guest_capability("msys2", "mount_virtualbox_shared_folder") do
+        require_relative "cap/mount_shared_folder"
+        Cap::MountSharedFolder
       end
       
       protected
