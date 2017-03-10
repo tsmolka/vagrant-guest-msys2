@@ -17,7 +17,7 @@ if( (Test-Path "$MountPoint") -and (Test-ReparsePoint "$MountPoint") )
 {
   Write-Output "Junction already exists, so I will delete it"
   # Powershell refuses to delete junctions, oh well use cmd
-  cmd /c rd "$MountPoint"
+  & cmd.exe /c rd "$MountPoint"
 
   if ( $LASTEXITCODE -ne 0 )
   {

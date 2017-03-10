@@ -1,14 +1,12 @@
 require "log4r"
+require "vagrant-guest-msys2/util/cap_helpers"
 
 module VagrantPlugins
   module GuestMSYS2
     # Manages the remote Windows guest network.
-    class GuestNetwork
-      PS_GET_WSMAN_VER = '((test-wsman).productversion.split(" ") | select -last 1).split("\.")[0]'
-      WQL_NET_ADAPTERS_V2 = 'SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL'
-
+    class GuestNetwork      
       def initialize(communicator)
-        @logger       = Log4r::Logger.new("vagrant::windows::guestnetwork")
+        @logger       = Log4r::Logger.new("vagrant::guest::msys2::guestnetwork")
         @communicator = communicator
       end
 
@@ -19,7 +17,34 @@ module VagrantPlugins
       def network_adapters
         @logger.debug("querying network adapters")
         
-        wsman_version == 2? network_adapters_v2_winrm : network_adapters_v3_winrm
+        # Note: without JSON escape because MACAddress and NetConnectionID 
+        # can't contain invalid characters
+        cmd = <<-EOH.gsub(/^ {10}/, '')
+          $adapters = Get-WmiObject -Class Win32_NetworkAdapter -Filter "MACAddress IS NOT NULL"
+          [string[]] $json= $()
+          foreach ($adapter in $adapters) {
+            $json += "{`
+              `"mac_address`": `"$($adapter.MACAddress)`",`
+              `"net_connection_id`": `"$($adapter.NetConnectionID)`",`
+              `"interface_index`": $([int]$adapter.InterfaceIndex),`
+              `"index`": $([int]$adapter.Index)`
+            }"
+          }
+          Write-Host "[$($json -Join ",")]"
+        EOH
+        
+        output = ""
+        @communicator.execute(Util::CapHelpers.wrap_powershell(cmd)) do |type, line|
+          output = output + "#{line}" if type == :stdout && !line.nil?
+        end
+        
+        adapters = []
+        JSON.parse(output).each do |nic|
+          adapters << nic.inject({}){ |memo,(k,v)| memo[k.to_sym] = v; memo }
+        end
+
+        @logger.debug("#{adapters.inspect}")
+        return adapters
       end
 
       # Checks to see if the specified NIC is currently configured for DHCP.
@@ -32,7 +57,7 @@ module VagrantPlugins
           }
           exit 1
         EOH
-        @communicator.test(cmd)
+        @communicator.test(Util::CapHelpers.wrap_powershell(cmd))
       end
 
       # Configures the specified interface for DHCP
@@ -65,62 +90,17 @@ module VagrantPlugins
       # https://github.com/WinRb/vagrant-windows/issues/63
       def set_all_networks_to_work
         @logger.info("Setting all networks to 'Work Network'")
-        command = File.read(File.expand_path("../scripts/set_work_network.ps1", __FILE__))
-        @communicator.execute(command)
-      end
+        
+        cmd = <<-EOH            
+          # Get network connections
+          $networkListManager = [Activator]::CreateInstance([Type]::GetTypeFromCLSID([Guid]"{DCB00C01-570F-4A9B-8D69-199FDBA5723B}"))
+          $connections = $networkListManager.GetNetworkConnections()
 
-      protected
-
-      # Checks the WinRS version on the guest. Usually 2 on Windows 7/2008
-      # and 3 on Windows 8/2012.
-      #
-      # @return [Integer]
-      def wsman_version
-        @logger.debug("querying WSMan version")
-        version = ''
-        @communicator.execute(PS_GET_WSMAN_VER) do |type, line|
-          version = version + "#{line}" if type == :stdout && !line.nil?
-        end
-        @logger.debug("wsman version: #{version}")
-        Integer(version)
-      end
-
-      # Returns an array of all NICs on the guest. Each array entry is a
-      # Hash of the NICs properties. This method should only be used on
-      # guests that have WinRS version 2.
-      #
-      # @return [Array]
-      def network_adapters_v2_winrm
-        @logger.debug("querying network adapters")
-
-        # Get all NICs that have a MAC address
-        # https://msdn.microsoft.com/en-us/library/windows/desktop/aa394216(v=vs.85).aspx
-        adapters = @communicator.execute(WQL_NET_ADAPTERS_V2, { shell: :wql } )[:win32_network_adapter]
-        @logger.debug("#{adapters.inspect}")
-        return adapters
-      end
-
-      # Returns an array of all NICs on the guest. Each array entry is a
-      # Hash of the NICs properties. This method should only be used on
-      # guests that have WinRS version 3.
-      #
-      # This method is a workaround until the WinRM gem supports WinRS version 3.
-      #
-      # @return [Array]
-      def network_adapters_v3_winrm
-        command = File.read(File.expand_path("../scripts/winrs_v3_get_adapters.ps1", __FILE__))
-        output = ""
-        @communicator.execute(command) do |type, line|
-          output = output + "#{line}" if type == :stdout && !line.nil?
-        end
-
-        adapters = []
-        JSON.parse(output).each do |nic|
-          adapters << nic.inject({}){ |memo,(k,v)| memo[k.to_sym] = v; memo }
-        end
-
-        @logger.debug("#{adapters.inspect}")
-        return adapters
+          # Set network location to Private for all networks
+          $connections | % {$_.GetNetwork().SetCategory(1)}
+        EOH
+        
+        @communicator.execute(Util::CapHelpers.wrap_powershell(cmd))
       end
     end
   end
